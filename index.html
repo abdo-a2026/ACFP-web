@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACFP — Advanced Clinic Flow Platform</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230B979C' width='100' height='100' rx='20'/><text x='50' y='70' text-anchor='middle' font-size='50' font-weight='900' fill='%23EAD39B' font-family='Arial'>A</text></svg>">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+<!-- ======================== LOGIN PAGE ======================== -->
+<div id="login-page" style="display:flex">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">
+        <span class="acfp-logo">ACFP</span>
+      </div>
+      <h1>Advanced Clinic Flow Platform</h1>
+      <p>نظام إدارة عيادات متقدم وذكي</p>
+    </div>
+    <div class="login-form">
+      <div class="form-group">
+        <label class="form-label">البريد الإلكتروني</label>
+        <input type="email" id="login-email" class="form-input" placeholder="admin@acfp.clinic">
+      </div>
+      <div class="form-group">
+        <label class="form-label">كلمة المرور</label>
+        <input type="password" id="login-password" class="form-input" placeholder="••••••••">
+      </div>
+      <button id="btn-login" class="btn btn-primary btn-lg btn-block">
+        <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+      </button>
+      <button id="btn-demo" class="btn btn-warning btn-block">
+        <i class="fas fa-flask"></i> الوضع التجريبي (بيانات عراقية)
+      </button>
+    </div>
+    <p style="text-align:center;font-size:10px;color:rgba(209,229,230,0.6);margin-top:20px">
+      ACFP v2.0 — Made in Iraq 🇮🇶
+    </p>
+  </div>
+</div>
+
+<!-- ======================== LOCK SCREEN ======================== -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div style="font-size:48px;margin-bottom:16px"><i class="fas fa-lock"></i></div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:8px">الجلسة مقفلة</h2>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:24px">أدخل كلمة المرور للمتابعة</p>
+    <div class="form-group" style="margin-bottom:16px">
+      <input type="password" id="lock-password" class="form-input" placeholder="كلمة المرور" style="text-align:center">
+    </div>
+    <button id="btn-unlock" class="btn btn-primary btn-block"><i class="fas fa-unlock"></i> إلغاء القفل</button>
+  </div>
+</div>
+
+<!-- ======================== MAIN APP ======================== -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <span class="acfp-text">ACFP</span>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name" id="clinic-name-display">ACFP</div>
+        <div class="brand-sub">نظام إدارة متكامل</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">القوائم</div>
+      <div class="nav-item active" data-page="dashboard">
+        <span class="nav-icon"><i class="fas fa-chart-line"></i></span> لوحة التحكم
+      </div>
+      <div class="nav-item" data-page="bookings">
+        <span class="nav-icon"><i class="fas fa-calendar-alt"></i></span> الحجوزات
+      </div>
+      <div class="nav-item" data-page="patients">
+        <span class="nav-icon"><i class="fas fa-users"></i></span> المرضى
+      </div>
+      <div class="nav-item" data-page="analytics">
+        <span class="nav-icon"><i class="fas fa-chart-bar"></i></span> التحليلات
+      </div>
+      <div class="nav-item" data-page="settings">
+        <span class="nav-icon"><i class="fas fa-cog"></i></span> الإعدادات
+      </div>
+    </div>
+
+    <div class="sidebar-actions">
+      <button id="btn-sidebar-booking" class="btn btn-primary btn-block">
+        <i class="fas fa-calendar-plus"></i> تسجيل حجز
+      </button>
+      <button id="btn-sidebar-patient" class="btn btn-success btn-block">
+        <i class="fas fa-user-plus"></i> تسجيل مريض
+      </button>
+      <button id="btn-logout" class="btn btn-ghost btn-block" style="margin-top:8px">
+        <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+      </button>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="topbar-title" id="topbar-title">لوحة التحكم</div>
+        <div class="topbar-subtitle" id="topbar-subtitle">نظرة عامة على الأداء</div>
+      </div>
+      <div style="position:relative">
+        <button id="btn-filter" class="btn btn-secondary btn-sm">
+          🔍 فلترة
+        </button>
+        <span id="filter-badge" class="badge badge-blue" style="position:absolute;top:-8px;right:-8px;display:none;min-width:18px;height:18px;padding:0;justify-content:center;font-size:10px"></span>
+      </div>
+      <button id="btn-export-btn" class="btn btn-secondary btn-sm">📤 تصدير</button>
+    </div>
+    <div class="topbar-right">
+      <div id="status-dot" class="status-dot">● متصل</div>
+      <div class="topbar-user">
+        <div class="user-avatar">A</div>
+        <div class="user-info">
+          <div class="user-name">المسؤول</div>
+          <div class="user-role">Admin</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- PERIOD FILTER CHIPS -->
+    <div class="filter-bar" style="margin-bottom:20px">
+      <span class="filter-label">عرض:</span>
+      <span class="filter-chip active" data-period="">📋 الكل</span>
+      <span class="filter-chip" data-period="today">📅 اليوم</span>
+      <span class="filter-chip" data-period="week">📆 الأسبوع</span>
+      <span class="filter-chip" data-period="month">🗓️ الشهر</span>
+      <div class="filter-divider"></div>
+      <button id="btn-add-booking" class="btn btn-primary btn-sm">+ حجز جديد</button>
+      <button id="btn-add-patient" class="btn btn-success btn-sm">+ مريض جديد</button>
+    </div>
+
+    <!-- ======== DASHBOARD PAGE ======== -->
+    <div id="page-dashboard" class="page active">
+
+      <!-- STATS GRID -->
+      <div class="stats-grid">
+        <div class="stat-card" style="--accent-color:var(--accent-blue)">
+          <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:var(--accent-blue)">📅</div>
+          <div class="stat-value" id="stat-total-bookings">0</div>
+          <div class="stat-label">إجمالي الحجوزات</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-emerald)">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">👥</div>
+          <div class="stat-value" id="stat-total-patients">0</div>
+          <div class="stat-label">إجمالي المراجعين</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-teal)">
+          <div class="stat-icon" style="background:rgba(20,184,166,0.15);color:var(--accent-teal)">✅</div>
+          <div class="stat-value" id="stat-attendance">0%</div>
+          <div class="stat-label">نسبة الحضور</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-amber)">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber)">⚠️</div>
+          <div class="stat-value" id="stat-noshow">0%</div>
+          <div class="stat-label">نسبة عدم الحضور</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-cyan)">
+          <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan)">💰</div>
+          <div class="stat-value" id="stat-revenue" style="font-size:18px">—</div>
+          <div class="stat-label">إجمالي الإيرادات</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-emerald)">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">📊</div>
+          <div class="stat-value" id="stat-profit" style="font-size:18px">—</div>
+          <div class="stat-label">صافي الربح</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-violet)">
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)">📐</div>
+          <div class="stat-value" id="stat-avg-profit" style="font-size:18px">—</div>
+          <div class="stat-label">متوسط ربح المراجع</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-violet)">
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)">🚶</div>
+          <div class="stat-value" id="stat-walkin">0</div>
+          <div class="stat-label">مراجعون بلا حجز</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-emerald)">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">🔗</div>
+          <div class="stat-value" id="stat-converted">0</div>
+          <div class="stat-label">محولون من حجز</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-amber)">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber)">🏆</div>
+          <div class="stat-value" id="stat-top-doctor" style="font-size:15px">—</div>
+          <div class="stat-label">أعلى طبيب أرباحاً</div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW 1 -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">الحجوزات والمراجعون (آخر 7 أيام)</div>
+              <div class="chart-subtitle">
+                <span style="color:var(--accent-blue)">●</span> الحجوزات &nbsp;
+                <span style="color:var(--accent-emerald)">●</span> المراجعون
+              </div>
+            </div>
+          </div>
+          <div style="height:180px"><canvas id="chart-bookings" style="width:100%;height:100%"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">مصادر الحجوزات</div>
+              <div class="chart-subtitle">توزيع نسبي</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:center;align-items:center;height:180px">
+            <canvas id="chart-sources" style="width:160px;height:160px"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW 2 -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">صافي الربح اليومي</div>
+              <div class="chart-subtitle"><span style="color:var(--accent-amber)">●</span> الأرباح</div>
+            </div>
+          </div>
+          <div style="height:180px"><canvas id="chart-revenue" style="width:100%;height:100%"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">أرباح الأطباء</div>
+              <div class="chart-subtitle">مقارنة صافي الربح</div>
+            </div>
+          </div>
+          <div style="height:180px"><canvas id="chart-doctors" style="width:100%;height:100%"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== BOOKINGS PAGE ======== -->
+    <div id="page-bookings" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📅 الحجوزات</div>
+          <div class="page-subtitle">إدارة وتتبع مواعيد المرضى</div>
+        </div>
+        <button id="btn-add-booking-2" class="btn btn-primary">+ إضافة حجز</button>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <div>
+            <div class="table-title">جدول الحجوزات</div>
+            <div class="table-count" id="bookings-count">0 حجز</div>
+          </div>
+          <div class="table-actions">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search-bookings" placeholder="بحث بالاسم أو الهاتف...">
+            </div>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>الرقم</th>
+                <th>اسم المريض</th>
+                <th>الهاتف</th>
+                <th>الطبيب</th>
+                <th>التاريخ</th>
+                <th>الوقت</th>
+                <th>المصدر</th>
+                <th>الحالة</th>
+                <th>المراجعة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-tbody">
+              <tr><td colspan="10"><div class="table-empty"><div class="empty-icon">📅</div><p>لا توجد حجوزات</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== PATIENTS PAGE ======== -->
+    <div id="page-patients" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">👥 المرضى</div>
+          <div class="page-subtitle">سجلات المراجعين والأرباح</div>
+        </div>
+        <button id="btn-add-patient-2" class="btn btn-success">+ تسجيل مريض</button>
+      </div>
+
+      <!-- Profit Summary -->
+      <div class="profit-summary">
+        <div class="stat-card" style="--accent-color:var(--accent-cyan)">
+          <div class="stat-label">إجمالي الإيرادات</div>
+          <div class="stat-value" id="patients-total-rev" style="font-size:18px;color:var(--accent-cyan)">—</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-rose)">
+          <div class="stat-label">إجمالي المصاريف</div>
+          <div class="stat-value" id="patients-total-exp" style="font-size:18px;color:var(--accent-rose)">—</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-emerald)">
+          <div class="stat-label">صافي الربح</div>
+          <div class="stat-value" id="patients-total-net" style="font-size:18px;color:var(--accent-emerald)">—</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-blue)">
+          <div class="stat-label">عدد المرضى</div>
+          <div class="stat-value" id="patients-count" style="font-size:24px">—</div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          <div>
+            <div class="table-title">سجل المرضى</div>
+          </div>
+          <div class="table-actions">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search-patients" placeholder="بحث بالاسم أو الهاتف...">
+            </div>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>الرقم</th>
+                <th>الاسم الكامل</th>
+                <th>الهاتف</th>
+                <th>الجنس</th>
+                <th>العمر</th>
+                <th>الطبيب</th>
+                <th>الخدمة</th>
+                <th>السعر</th>
+                <th>المصاريف</th>
+                <th>صافي الربح</th>
+                <th>نوع الزيارة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="patients-tbody">
+              <tr><td colspan="12"><div class="table-empty"><div class="empty-icon">👥</div><p>لا توجد سجلات</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== ANALYTICS PAGE ======== -->
+    <div id="page-analytics" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📈 التحليلات المتقدمة</div>
+          <div class="page-subtitle">تقارير وإحصاءات شاملة</div>
+        </div>
+      </div>
+
+      <!-- Analytics Stats -->
+      <div class="stats-grid">
+        <div class="stat-card" style="--accent-color:var(--accent-blue)">
+          <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:var(--accent-blue)">📅</div>
+          <div class="stat-value" id="an-total-bookings">—</div>
+          <div class="stat-label">إجمالي الحجوزات</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-emerald)">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">✅</div>
+          <div class="stat-value" id="an-attendance">—</div>
+          <div class="stat-label">معدل الحضور</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-amber)">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber)">⚠️</div>
+          <div class="stat-value" id="an-noshow">—</div>
+          <div class="stat-label">معدل عدم الحضور</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-rose)">
+          <div class="stat-icon" style="background:rgba(244,63,94,0.15);color:var(--accent-rose)">❌</div>
+          <div class="stat-value" id="an-cancel">—</div>
+          <div class="stat-label">الحجوزات الملغاة</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-teal)">
+          <div class="stat-icon" style="background:rgba(20,184,166,0.15);color:var(--accent-teal)">👥</div>
+          <div class="stat-value" id="an-total-patients">—</div>
+          <div class="stat-label">إجمالي المراجعين</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-violet)">
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)">🚶</div>
+          <div class="stat-value" id="an-walkin">—</div>
+          <div class="stat-label">مراجعون بلا حجز</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-emerald)">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">🔗</div>
+          <div class="stat-value" id="an-converted">—</div>
+          <div class="stat-label">محولون من حجز</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-cyan)">
+          <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan)">🎯</div>
+          <div class="stat-value" id="an-conversion-rate">—</div>
+          <div class="stat-label">معدل التحويل</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-cyan)">
+          <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan)">💰</div>
+          <div class="stat-value" id="an-total-revenue" style="font-size:16px">—</div>
+          <div class="stat-label">إجمالي الإيرادات</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-rose)">
+          <div class="stat-icon" style="background:rgba(244,63,94,0.15);color:var(--accent-rose)">📉</div>
+          <div class="stat-value" id="an-total-expenses" style="font-size:16px">—</div>
+          <div class="stat-label">إجمالي المصاريف</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-emerald)">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">📊</div>
+          <div class="stat-value" id="an-net-profit" style="font-size:16px">—</div>
+          <div class="stat-label">صافي الربح</div>
+        </div>
+        <div class="stat-card" style="--accent-color:var(--accent-violet)">
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)">📐</div>
+          <div class="stat-value" id="an-avg-profit" style="font-size:16px">—</div>
+          <div class="stat-label">متوسط الربح</div>
+        </div>
+      </div>
+
+      <!-- Gender Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div class="card" style="display:flex;align-items:center;gap:20px">
+          <div style="font-size:32px">👨</div>
+          <div>
+            <div style="font-size:26px;font-weight:700;color:var(--accent-blue)" id="an-male">0</div>
+            <div style="font-size:12px;color:var(--text-muted)">مراجعون ذكور</div>
+          </div>
+          <div style="margin-right:auto;font-size:32px">👩</div>
+          <div>
+            <div style="font-size:26px;font-weight:700;color:var(--accent-violet)" id="an-female">0</div>
+            <div style="font-size:12px;color:var(--text-muted)">مراجعات إناث</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title" style="margin-bottom:12px">مصادر الحجوزات</div>
+          <div style="display:flex;justify-content:center;align-items:center;height:140px">
+            <canvas id="chart-an-sources" style="width:140px;height:140px"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts and Lists -->
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <div class="analytics-title">🏆 الأطباء حسب الربح</div>
+          <div class="analytics-list" id="an-doctor-list"></div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-title">💊 الخدمات الأكثر طلباً</div>
+          <div class="analytics-list" id="an-service-list"></div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-title">📡 مصادر الحجوزات</div>
+          <div class="analytics-list" id="an-source-list"></div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">المراجعون اليومي</div>
+          </div>
+          <div style="height:180px"><canvas id="chart-an-patients" style="width:100%;height:100%"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">الربح اليومي</div>
+          </div>
+          <div style="height:180px"><canvas id="chart-an-revenue" style="width:100%;height:100%"></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">أداء الأطباء (صافي الربح)</div>
+        </div>
+        <div style="height:200px"><canvas id="chart-an-doctors" style="width:100%;height:100%"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ======== SETTINGS PAGE ======== -->
+    <div id="page-settings" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">⚙️ الإعدادات</div>
+          <div class="page-subtitle">تخصيص النظام وإعداداته</div>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Profit Settings -->
+        <div class="settings-card">
+          <div class="settings-title">💰 توزيع نسب الأرباح</div>
+          <div class="settings-desc">تحديد النسب المئوية لتوزيع صافي الربح</div>
+
+          <div class="range-group">
+            <div class="range-header">
+              <span class="range-label">🩺 حصة الطبيب</span>
+              <span class="range-value" id="range-doctor-display">40%</span>
+            </div>
+            <input type="range" id="range-doctor" min="0" max="100" value="40">
+          </div>
+          <div class="range-group">
+            <div class="range-header">
+              <span class="range-label">🏥 حصة العيادة</span>
+              <span class="range-value" id="range-clinic-display">40%</span>
+            </div>
+            <input type="range" id="range-clinic" min="0" max="100" value="40">
+          </div>
+          <div class="range-group">
+            <div class="range-header">
+              <span class="range-label">💻 حصة المنصة</span>
+              <span class="range-value" id="range-platform-display">20%</span>
+            </div>
+            <input type="range" id="range-platform" min="0" max="100" value="20">
+          </div>
+
+          <div id="ranges-total" style="text-align:center;font-size:12px;margin:8px 0;color:var(--accent-emerald)">المجموع: 100%</div>
+          <button id="btn-save-profit-settings" class="btn btn-primary btn-block">💾 حفظ النسب</button>
+        </div>
+
+        <!-- General Settings -->
+        <div class="settings-card">
+          <div class="settings-title"><i class="fas fa-clinic-medical"></i> إعدادات العيادة</div>
+          <div class="settings-desc">البيانات الأساسية والتفضيلات</div>
+
+          <div class="form-group" style="margin-bottom:16px">
+            <label class="form-label">اسم العيادة</label>
+            <input type="text" id="setting-clinic-name" class="form-input" placeholder="ACFP">
+          </div>
+
+          <div class="toggle-switch">
+            <div>
+              <div class="toggle-label"><i class="fas fa-moon"></i> الوضع الداكن</div>
+              <div class="toggle-desc">التبديل بين الوضع الداكن والفاتح</div>
+            </div>
+            <div class="toggle on" id="toggle-dark-mode"></div>
+          </div>
+          <div class="toggle-switch">
+            <div>
+              <div class="toggle-label"><i class="fas fa-bell"></i> الإشعارات</div>
+              <div class="toggle-desc">تنبيهات الحجوزات الجديدة</div>
+            </div>
+            <div class="toggle on"></div>
+          </div>
+          <div class="toggle-switch">
+            <div>
+              <div class="toggle-label"><i class="fas fa-link"></i> الربط التلقائي</div>
+              <div class="toggle-desc">ربط الحجز بالمريض تلقائياً</div>
+            </div>
+            <div class="toggle on"></div>
+          </div>
+          <div class="toggle-switch">
+            <div>
+              <div class="toggle-label"><i class="fas fa-database"></i> Firebase</div>
+              <div class="toggle-desc">الاتصال بقاعدة البيانات السحابية</div>
+            </div>
+            <div class="toggle" id="toggle-firebase"></div>
+          </div>
+
+          <button id="btn-save-settings" class="btn btn-success btn-block" style="margin-top:16px">
+            <i class="fas fa-save"></i> حفظ الإعدادات
+          </button>
+        </div>
+
+        <!-- Doctors -->
+        <div class="settings-card">
+          <div class="settings-title">🩺 إدارة الأطباء</div>
+          <div class="settings-desc">إضافة وحذف الأطباء في النظام</div>
+
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <input type="text" id="new-doctor" class="form-input" placeholder="اسم الطبيب الجديد">
+            <button onclick="App.addDoctor()" class="btn btn-primary">+ إضافة</button>
+          </div>
+          <div id="doctors-list" style="max-height:220px;overflow-y:auto"></div>
+        </div>
+
+        <!-- Services -->
+        <div class="settings-card">
+          <div class="settings-title">💊 إدارة الخدمات</div>
+          <div class="settings-desc">إضافة وحذف أنواع الخدمات الطبية</div>
+
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <input type="text" id="new-service" class="form-input" placeholder="اسم الخدمة الجديدة">
+            <button onclick="App.addService()" class="btn btn-primary">+ إضافة</button>
+          </div>
+          <div id="services-list" style="max-height:220px;overflow-y:auto"></div>
+        </div>
+      </div>
+
+      <!-- Export Section -->
+      <div class="settings-card" style="margin-top:20px">
+        <div class="settings-title">📤 تصدير البيانات</div>
+        <div class="settings-desc">تصدير جميع البيانات بتنسيق CSV</div>
+        <div class="export-grid">
+          <div class="export-btn" onclick="App.exportBookings()">
+            <div class="export-icon">📅</div>
+            <div class="export-label">تصدير الحجوزات</div>
+            <div class="export-desc">جميع بيانات المواعيد</div>
+          </div>
+          <div class="export-btn" onclick="App.exportPatients()">
+            <div class="export-icon">👥</div>
+            <div class="export-label">تصدير المرضى</div>
+            <div class="export-desc">سجلات المراجعين والأرباح</div>
+          </div>
+          <div class="export-btn" onclick="App.exportReport()">
+            <div class="export-icon">📊</div>
+            <div class="export-label">تقرير الأرباح</div>
+            <div class="export-desc">ملخص المؤشرات المالية</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main><!-- end main-content -->
+</div><!-- end app -->
+
+<!-- ==================== TOAST CONTAINER ==================== -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- ==================== CONFIRM DIALOG ==================== -->
+<div id="confirm-overlay" class="modal-overlay">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <div class="modal-title">⚠️ تأكيد العملية</div>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-msg" style="color:var(--text-secondary);font-size:14px;text-align:center;padding:16px 0"></p>
+    </div>
+    <div class="modal-footer">
+      <button id="confirm-no" class="btn btn-secondary">إلغاء</button>
+      <button id="confirm-yes" class="btn btn-danger">تأكيد الحذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== BOOKING MODAL ==================== -->
+<div id="booking-modal" class="modal-overlay">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="booking-modal-title">إضافة حجز جديد</div>
+        <div class="modal-subtitle">📅 تسجيل موعد المريض</div>
+      </div>
+      <button class="modal-close" data-close-modal>✕</button>
+    </div>
+    <form id="booking-form">
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">اسم المريض *</label>
+            <input type="text" id="booking-name" class="form-input" placeholder="الاسم الكامل" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رقم الهاتف *</label>
+            <input type="tel" id="booking-phone" class="form-input" placeholder="05XXXXXXXX" required dir="ltr">
+          </div>
+          <div class="form-group">
+            <label class="form-label">الطبيب *</label>
+            <select id="booking-doctor" class="form-select" required>
+              <option value="">اختر الطبيب</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">تاريخ الموعد *</label>
+            <input type="date" id="booking-date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">وقت الموعد</label>
+            <input type="time" id="booking-time" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">مصدر الحجز</label>
+            <select id="booking-source" class="form-select">
+              <option value="phone">📞 هاتف</option>
+              <option value="whatsapp">💬 واتساب</option>
+              <option value="walk-in">🚶 مباشر</option>
+              <option value="online">🌐 إنترنت</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">حالة الحجز</label>
+            <select id="booking-status" class="form-select">
+              <option value="scheduled">📅 مجدول</option>
+              <option value="completed">✅ مكتمل</option>
+              <option value="canceled">❌ ملغي</option>
+              <option value="no-show">⚠️ لم يحضر</option>
+            </select>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">ملاحظات</label>
+            <textarea id="booking-notes" class="form-textarea" placeholder="أي ملاحظات إضافية..."></textarea>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close-modal>إلغاء</button>
+      <button id="btn-save-booking" class="btn btn-primary">💾 حفظ الحجز</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PATIENT MODAL ==================== -->
+<div id="patient-modal" class="modal-overlay">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="patient-modal-title">تسجيل مريض جديد</div>
+        <div class="modal-subtitle">👤 بيانات المراجعة الفعلية</div>
+      </div>
+      <button class="modal-close" data-close-modal>✕</button>
+    </div>
+    <form id="patient-form">
+      <div class="modal-body">
+        <!-- Personal Info -->
+        <div class="form-section">
+          <div class="form-section-title">👤 المعلومات الشخصية</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">الاسم الكامل *</label>
+              <input type="text" id="patient-name" class="form-input" placeholder="الاسم الرباعي" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">رقم الهاتف *</label>
+              <input type="tel" id="patient-phone" class="form-input" placeholder="05XXXXXXXX" required dir="ltr">
+            </div>
+            <div class="form-group">
+              <label class="form-label">الجنس</label>
+              <select id="patient-gender" class="form-select">
+                <option value="male">👨 ذكر</option>
+                <option value="female">👩 أنثى</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">تاريخ الميلاد</label>
+              <input type="date" id="patient-birthdate" class="form-input">
+            </div>
+            <div class="form-group form-full">
+              <label class="form-label">العنوان</label>
+              <input type="text" id="patient-address" class="form-input" placeholder="المدينة، الحي">
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Info -->
+        <div class="form-section">
+          <div class="form-section-title">🏥 معلومات الخدمة</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">الطبيب المعالج *</label>
+              <select id="patient-doctor" class="form-select" required>
+                <option value="">اختر الطبيب</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">نوع الخدمة *</label>
+              <select id="patient-service" class="form-select" required>
+                <option value="">اختر الخدمة</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">تاريخ المراجعة</label>
+              <input type="date" id="patient-date" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Info -->
+        <div class="form-section">
+          <div class="form-section-title">💰 المعلومات المالية</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">السعر الإجمالي (ر.س)</label>
+              <input type="number" id="patient-price" class="form-input" placeholder="0.00" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">المصاريف (ر.س)</label>
+              <input type="number" id="patient-expenses" class="form-input" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+
+          <!-- Profit Preview -->
+          <div class="profit-preview">
+            <div class="profit-item">
+              <div class="profit-value profit-net" id="preview-net">0 ر.س</div>
+              <div class="profit-label">📊 صافي الربح</div>
+            </div>
+            <div class="profit-item">
+              <div class="profit-value profit-doctor" id="preview-doctor">0 ر.س</div>
+              <div class="profit-label">🩺 حصة الطبيب</div>
+            </div>
+            <div class="profit-item">
+              <div class="profit-value profit-clinic" id="preview-clinic">0 ر.س</div>
+              <div class="profit-label">🏥 حصة العيادة</div>
+            </div>
+            <div class="profit-item">
+              <div class="profit-value profit-platform" id="preview-platform">0 ر.س</div>
+              <div class="profit-label">💻 حصة المنصة</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medical Notes -->
+        <div class="form-section" style="margin-bottom:0">
+          <div class="form-section-title">📋 ملاحظات طبية</div>
+          <div class="form-group">
+            <textarea id="patient-notes" class="form-textarea" placeholder="الحساسية، الأمراض المزمنة، الملاحظات الطبية..." style="min-height:100px"></textarea>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close-modal>إلغاء</button>
+      <button id="btn-save-patient" class="btn btn-success">💾 تسجيل المريض</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FILTER MODAL ==================== -->
+<div id="filter-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">🔍 الفلترة الشاملة</div>
+        <div class="modal-subtitle">تصفية البيانات حسب المعايير</div>
+      </div>
+      <button class="modal-close" data-close-modal>✕</button>
+    </div>
+    <form id="filter-form">
+      <div class="modal-body">
+        <div class="filter-modal-grid">
+          <div class="form-group">
+            <label class="form-label">الطبيب</label>
+            <select id="filter-doctor" class="form-select">
+              <option value="">جميع الأطباء</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الخدمة</label>
+            <select id="filter-service" class="form-select">
+              <option value="">جميع الخدمات</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">مصدر الحجز</label>
+            <select id="filter-source" class="form-select">
+              <option value="">جميع المصادر</option>
+              <option value="phone">📞 هاتف</option>
+              <option value="whatsapp">💬 واتساب</option>
+              <option value="walk-in">🚶 مباشر</option>
+              <option value="online">🌐 إنترنت</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الجنس</label>
+            <select id="filter-gender" class="form-select">
+              <option value="">الكل</option>
+              <option value="male">👨 ذكر</option>
+              <option value="female">👩 أنثى</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">حالة الحجز</label>
+            <select id="filter-status" class="form-select">
+              <option value="">الكل</option>
+              <option value="scheduled">مجدول</option>
+              <option value="completed">مكتمل</option>
+              <option value="canceled">ملغي</option>
+              <option value="no-show">لم يحضر</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الفترة الزمنية</label>
+            <select id="filter-period" class="form-select">
+              <option value="">الكل</option>
+              <option value="today">اليوم</option>
+              <option value="week">آخر أسبوع</option>
+              <option value="month">آخر شهر</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">من تاريخ</label>
+            <input type="date" id="filter-date-from" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">إلى تاريخ</label>
+            <input type="date" id="filter-date-to" class="form-input">
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="modal-footer">
+      <button id="btn-clear-filter" class="btn btn-secondary">🗑️ مسح الفلتر</button>
+      <button id="btn-apply-filter" class="btn btn-primary">✅ تطبيق الفلتر</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== EXPORT MODAL ==================== -->
+<div id="export-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📤 تصدير البيانات</div>
+        <div class="modal-subtitle">تنزيل البيانات بتنسيق CSV</div>
+      </div>
+      <button class="modal-close" data-close-modal>✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="export-grid">
+        <div class="export-btn" onclick="App.exportBookings();UI.closeAllModals()">
+          <div class="export-icon">📅</div>
+          <div class="export-label">الحجوزات</div>
+          <div class="export-desc">جميع بيانات المواعيد</div>
+        </div>
+        <div class="export-btn" onclick="App.exportPatients();UI.closeAllModals()">
+          <div class="export-icon">👥</div>
+          <div class="export-label">المرضى</div>
+          <div class="export-desc">سجلات المراجعين</div>
+        </div>
+        <div class="export-btn" onclick="App.exportReport();UI.closeAllModals()">
+          <div class="export-icon">📊</div>
+          <div class="export-label">تقرير الأرباح</div>
+          <div class="export-desc">ملخص مالي شامل</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FIREBASE SETUP MODAL ==================== -->
+<div id="firebase-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title"><i class="fas fa-database"></i> إعداد Firebase</div>
+        <div class="modal-subtitle">ربط قاعدة البيانات السحابية</div>
+      </div>
+      <button class="modal-close" data-close-modal>✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:20px;line-height:1.8">
+        <i class="fas fa-info-circle" style="color:var(--primary-teal)"></i> 
+        لربط النظام مع Firebase، يجب إنشاء مشروع في 
+        <a href="https://console.firebase.google.com" target="_blank" style="color:var(--primary-teal);text-decoration:underline">Firebase Console</a>
+        ثم نسخ البيانات التالية من إعدادات المشروع:
+      </p>
+      
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-key"></i> API Key</label>
+        <input type="text" id="firebase-api-key" class="form-input" placeholder="AIzaSyC...">
+      </div>
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-globe"></i> Auth Domain</label>
+        <input type="text" id="firebase-auth-domain" class="form-input" placeholder="your-project.firebaseapp.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label"><i class="fas fa-project-diagram"></i> Project ID</label>
+        <input type="text" id="firebase-project-id" class="form-input" placeholder="your-project-id">
+      </div>
+
+      <div style="background:rgba(11,151,156,0.1);border:1px solid rgba(11,151,156,0.3);border-radius:8px;padding:12px;margin-top:16px">
+        <p style="font-size:12px;color:var(--text-secondary);margin:0">
+          <i class="fas fa-shield-alt" style="color:var(--primary-beige)"></i>
+          <strong>ملاحظة أمنية:</strong> سيتم حفظ هذه البيانات محلياً في متصفحك فقط. يُنصح بتفعيل قواعد الأمان في Firebase.
+        </p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close-modal>إلغاء</button>
+      <button id="btn-connect-firebase" class="btn btn-primary">
+        <i class="fas fa-link"></i> اتصال
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TSV HELP MODAL ==================== -->
+<div id="tsv-help-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title"><i class="fas fa-file-alt"></i> كيفية فتح ملف TSV</div>
+        <div class="modal-subtitle">إرشادات الاستخدام</div>
+      </div>
+      <button class="modal-close" data-close-modal>✕</button>
+    </div>
+    <div class="modal-body" style="line-height:1.8">
+      <p style="color:var(--text-secondary);font-size:14px;margin-bottom:20px">
+        تم تصدير البيانات بصيغة <strong>TSV</strong> (Tab-Separated Values) لضمان عرض صحيح للنصوص العربية.
+      </p>
+
+      <div style="background:var(--bg-secondary);border-radius:8px;padding:16px;margin-bottom:16px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--primary-beige)">
+          <i class="fas fa-table"></i> طريقة 1: فتح في Excel
+        </h3>
+        <ol style="font-size:13px;color:var(--text-secondary);padding-right:20px;margin:0">
+          <li style="margin-bottom:8px">افتح Excel → <strong>بيانات (Data)</strong> → <strong>من نص (From Text)</strong></li>
+          <li style="margin-bottom:8px">اختر الملف المُصدّر (.tsv)</li>
+          <li style="margin-bottom:8px">في معالج الاستيراد اختر: <strong>محدد (Delimited)</strong></li>
+          <li style="margin-bottom:8px">حدد <strong>Tab</strong> كفاصل</li>
+          <li style="margin-bottom:8px">اختر ترميز <strong>UTF-8</strong> للنصوص العربية</li>
+        </ol>
+      </div>
+
+      <div style="background:var(--bg-secondary);border-radius:8px;padding:16px">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--primary-beige)">
+          <i class="fas fa-table"></i> طريقة 2: فتح في Google Sheets
+        </h3>
+        <ol style="font-size:13px;color:var(--text-secondary);padding-right:20px;margin:0">
+          <li style="margin-bottom:8px">افتح Google Sheets</li>
+          <li style="margin-bottom:8px">اذهب إلى <strong>ملف → استيراد</strong></li>
+          <li style="margin-bottom:8px">ارفع ملف TSV</li>
+          <li style="margin-bottom:8px">اختر <strong>Tab</strong> كنوع الفاصل</li>
+          <li>سيتم عرض البيانات بشكل صحيح تلقائياً</li>
+        </ol>
+      </div>
+
+      <p style="font-size:12px;color:var(--text-muted);margin-top:16px;text-align:center">
+        <i class="fas fa-info-circle"></i>
+        يمكنك أيضاً فتح الملف بأي محرر نصوص لرؤية البيانات الخام
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary btn-block" data-close-modal>
+        <i class="fas fa-check"></i> فهمت
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+// Set today as default date for booking
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  const bookingDate = document.getElementById('booking-date');
+  const patientDate = document.getElementById('patient-date');
+  if (bookingDate) bookingDate.value = today;
+  if (patientDate) patientDate.value = today;
+
+  // Handle canvas resize
+  window.addEventListener('resize', () => {
+    if (document.getElementById('page-dashboard').classList.contains('active')) {
+      App.renderDashboard();
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ACFP — Advanced Clinic Flow Platform</title>
 <link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%230B979C' width='100' height='100' rx='20'/><text x='50' y='70' text-anchor='middle' font-size='50' font-weight='900' fill='%23EAD39B' font-family='Arial'>A</text></svg>">
 
 <!-- Firebase SDK -->
@@ -13,6 +16,12 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
+
+<!-- ======================== LOADER ======================== -->
+<div id="app-loader">
+  <div class="loader-spinner"></div>
+  <div id="loader-text">جاري التحميل...</div>
+</div>
 
 <!-- ======================== LOGIN PAGE ======================== -->
 <div id="login-page" style="display:flex">
@@ -115,11 +124,11 @@
       </div>
       <div style="position:relative">
         <button id="btn-filter" class="btn btn-secondary btn-sm">
-          🔍 فلترة
+          <i class="fas fa-search"></i> فلترة
         </button>
         <span id="filter-badge" class="badge badge-blue" style="position:absolute;top:-8px;right:-8px;display:none;min-width:18px;height:18px;padding:0;justify-content:center;font-size:10px"></span>
       </div>
-      <button id="btn-export-btn" class="btn btn-secondary btn-sm">📤 تصدير</button>
+      <button id="btn-export-btn" class="btn btn-secondary btn-sm"><i class="fas fa-file-export"></i> تصدير</button>
     </div>
     <div class="topbar-right">
       <div id="status-dot" class="status-dot">● متصل</div>
@@ -139,10 +148,10 @@
     <!-- PERIOD FILTER CHIPS -->
     <div class="filter-bar" style="margin-bottom:20px">
       <span class="filter-label">عرض:</span>
-      <span class="filter-chip active" data-period="">📋 الكل</span>
-      <span class="filter-chip" data-period="today">📅 اليوم</span>
-      <span class="filter-chip" data-period="week">📆 الأسبوع</span>
-      <span class="filter-chip" data-period="month">🗓️ الشهر</span>
+      <span class="filter-chip active" data-period=""><i class="fas fa-clipboard-list"></i> الكل</span>
+      <span class="filter-chip" data-period="today"><i class="fas fa-calendar-alt"></i> اليوم</span>
+      <span class="filter-chip" data-period="week"><i class="fas fa-calendar-week"></i> الأسبوع</span>
+      <span class="filter-chip" data-period="month"><i class="fas fa-calendar"></i> الشهر</span>
       <div class="filter-divider"></div>
       <button id="btn-add-booking" class="btn btn-primary btn-sm">+ حجز جديد</button>
       <button id="btn-add-patient" class="btn btn-success btn-sm">+ مريض جديد</button>
@@ -154,52 +163,52 @@
       <!-- STATS GRID -->
       <div class="stats-grid">
         <div class="stat-card" style="--accent-color:var(--accent-blue)">
-          <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:var(--accent-blue)">📅</div>
+          <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:var(--accent-blue)"><i class="fas fa-calendar-alt"></i></div>
           <div class="stat-value" id="stat-total-bookings">0</div>
           <div class="stat-label">إجمالي الحجوزات</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-emerald)">
-          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">👥</div>
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)"><i class="fas fa-users"></i></div>
           <div class="stat-value" id="stat-total-patients">0</div>
           <div class="stat-label">إجمالي المراجعين</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-teal)">
-          <div class="stat-icon" style="background:rgba(20,184,166,0.15);color:var(--accent-teal)">✅</div>
+          <div class="stat-icon" style="background:rgba(20,184,166,0.15);color:var(--accent-teal)"><i class="fas fa-check-circle"></i></div>
           <div class="stat-value" id="stat-attendance">0%</div>
           <div class="stat-label">نسبة الحضور</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-amber)">
-          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber)">⚠️</div>
+          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber)"><i class="fas fa-exclamation-triangle"></i></div>
           <div class="stat-value" id="stat-noshow">0%</div>
           <div class="stat-label">نسبة عدم الحضور</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-cyan)">
-          <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan)">💰</div>
+          <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan)"><i class="fas fa-coins"></i></div>
           <div class="stat-value" id="stat-revenue" style="font-size:18px">—</div>
           <div class="stat-label">إجمالي الإيرادات</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-emerald)">
-          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">📊</div>
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)"><i class="fas fa-chart-line"></i></div>
           <div class="stat-value" id="stat-profit" style="font-size:18px">—</div>
           <div class="stat-label">صافي الربح</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-violet)">
-          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)">📐</div>
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)"><i class="fas fa-calculator"></i></div>
           <div class="stat-value" id="stat-avg-profit" style="font-size:18px">—</div>
           <div class="stat-label">متوسط ربح المراجع</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-violet)">
-          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)">🚶</div>
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)"><i class="fas fa-walking"></i></div>
           <div class="stat-value" id="stat-walkin">0</div>
           <div class="stat-label">مراجعون بلا حجز</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-emerald)">
-          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">🔗</div>
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)"><i class="fas fa-link"></i></div>
           <div class="stat-value" id="stat-converted">0</div>
           <div class="stat-label">محولون من حجز</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-amber)">
-          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber)">🏆</div>
+          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber)"><i class="fas fa-trophy"></i></div>
           <div class="stat-value" id="stat-top-doctor" style="font-size:15px">—</div>
           <div class="stat-label">أعلى طبيب أرباحاً</div>
         </div>
@@ -259,7 +268,7 @@
     <div id="page-bookings" class="page">
       <div class="page-header">
         <div>
-          <div class="page-title">📅 الحجوزات</div>
+          <div class="page-title"><i class="fas fa-calendar-alt"></i> الحجوزات</div>
           <div class="page-subtitle">إدارة وتتبع مواعيد المرضى</div>
         </div>
         <button id="btn-add-booking-2" class="btn btn-primary">+ إضافة حجز</button>
@@ -273,9 +282,10 @@
           </div>
           <div class="table-actions">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="search-icon"><i class="fas fa-search"></i></span>
               <input type="text" id="search-bookings" placeholder="بحث بالاسم أو الهاتف...">
             </div>
+            <input type="date" id="filter-booking-date" class="form-input" placeholder="تصفية حسب تاريخ الموعد" style="width:auto;min-width:160px" title="تصفية حسب تاريخ الموعد">
           </div>
         </div>
         <div style="overflow-x:auto">
@@ -286,16 +296,17 @@
                 <th>اسم المريض</th>
                 <th>الهاتف</th>
                 <th>الطبيب</th>
-                <th>التاريخ</th>
+                <th>تاريخ الموعد</th>
                 <th>الوقت</th>
                 <th>المصدر</th>
                 <th>الحالة</th>
                 <th>المراجعة</th>
+                <th>تاريخ التسجيل</th>
                 <th>الإجراءات</th>
               </tr>
             </thead>
             <tbody id="bookings-tbody">
-              <tr><td colspan="10"><div class="table-empty"><div class="empty-icon">📅</div><p>لا توجد حجوزات</p></div></td></tr>
+              <tr><td colspan="11"><div class="table-empty"><div class="empty-icon"><i class="fas fa-calendar-times"></i></div><p>لا توجد حجوزات</p></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -306,7 +317,7 @@
     <div id="page-patients" class="page">
       <div class="page-header">
         <div>
-          <div class="page-title">👥 المرضى</div>
+          <div class="page-title"><i class="fas fa-users"></i> المرضى</div>
           <div class="page-subtitle">سجلات المراجعين والأرباح</div>
         </div>
         <button id="btn-add-patient-2" class="btn btn-success">+ تسجيل مريض</button>
@@ -339,7 +350,7 @@
           </div>
           <div class="table-actions">
             <div class="search-box">
-              <span class="search-icon">🔍</span>
+              <span class="search-icon"><i class="fas fa-search"></i></span>
               <input type="text" id="search-patients" placeholder="بحث بالاسم أو الهاتف...">
             </div>
           </div>
@@ -353,6 +364,7 @@
                 <th>الهاتف</th>
                 <th>الجنس</th>
                 <th>العمر</th>
+                <th>المنطقة</th>
                 <th>الطبيب</th>
                 <th>الخدمة</th>
                 <th>السعر</th>
@@ -363,7 +375,7 @@
               </tr>
             </thead>
             <tbody id="patients-tbody">
-              <tr><td colspan="12"><div class="table-empty"><div class="empty-icon">👥</div><p>لا توجد سجلات</p></div></td></tr>
+              <tr><td colspan="13"><div class="table-empty"><div class="empty-icon"><i class="fas fa-user-times"></i></div><p>لا توجد سجلات</p></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -382,17 +394,17 @@
       <!-- Analytics Stats -->
       <div class="stats-grid">
         <div class="stat-card" style="--accent-color:var(--accent-blue)">
-          <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:var(--accent-blue)">📅</div>
+          <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:var(--accent-blue)"><i class="fas fa-calendar-alt"></i></div>
           <div class="stat-value" id="an-total-bookings">—</div>
           <div class="stat-label">إجمالي الحجوزات</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-emerald)">
-          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">✅</div>
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)"><i class="fas fa-check-circle"></i></div>
           <div class="stat-value" id="an-attendance">—</div>
           <div class="stat-label">معدل الحضور</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-amber)">
-          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber)">⚠️</div>
+          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--accent-amber)"><i class="fas fa-exclamation-triangle"></i></div>
           <div class="stat-value" id="an-noshow">—</div>
           <div class="stat-label">معدل عدم الحضور</div>
         </div>
@@ -402,17 +414,17 @@
           <div class="stat-label">الحجوزات الملغاة</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-teal)">
-          <div class="stat-icon" style="background:rgba(20,184,166,0.15);color:var(--accent-teal)">👥</div>
+          <div class="stat-icon" style="background:rgba(20,184,166,0.15);color:var(--accent-teal)"><i class="fas fa-users"></i></div>
           <div class="stat-value" id="an-total-patients">—</div>
           <div class="stat-label">إجمالي المراجعين</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-violet)">
-          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)">🚶</div>
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)"><i class="fas fa-walking"></i></div>
           <div class="stat-value" id="an-walkin">—</div>
           <div class="stat-label">مراجعون بلا حجز</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-emerald)">
-          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">🔗</div>
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)"><i class="fas fa-link"></i></div>
           <div class="stat-value" id="an-converted">—</div>
           <div class="stat-label">محولون من حجز</div>
         </div>
@@ -422,7 +434,7 @@
           <div class="stat-label">معدل التحويل</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-cyan)">
-          <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan)">💰</div>
+          <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:var(--accent-cyan)"><i class="fas fa-coins"></i></div>
           <div class="stat-value" id="an-total-revenue" style="font-size:16px">—</div>
           <div class="stat-label">إجمالي الإيرادات</div>
         </div>
@@ -432,12 +444,12 @@
           <div class="stat-label">إجمالي المصاريف</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-emerald)">
-          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)">📊</div>
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent-emerald)"><i class="fas fa-chart-line"></i></div>
           <div class="stat-value" id="an-net-profit" style="font-size:16px">—</div>
           <div class="stat-label">صافي الربح</div>
         </div>
         <div class="stat-card" style="--accent-color:var(--accent-violet)">
-          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)">📐</div>
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--accent-violet)"><i class="fas fa-calculator"></i></div>
           <div class="stat-value" id="an-avg-profit" style="font-size:16px">—</div>
           <div class="stat-label">متوسط الربح</div>
         </div>
@@ -446,12 +458,12 @@
       <!-- Gender Stats -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
         <div class="card" style="display:flex;align-items:center;gap:20px">
-          <div style="font-size:32px">👨</div>
+          <div style="font-size:32px"><i class="fas fa-male"></i></div>
           <div>
             <div style="font-size:26px;font-weight:700;color:var(--accent-blue)" id="an-male">0</div>
             <div style="font-size:12px;color:var(--text-muted)">مراجعون ذكور</div>
           </div>
-          <div style="margin-right:auto;font-size:32px">👩</div>
+          <div style="margin-right:auto;font-size:32px"><i class="fas fa-female"></i></div>
           <div>
             <div style="font-size:26px;font-weight:700;color:var(--accent-violet)" id="an-female">0</div>
             <div style="font-size:12px;color:var(--text-muted)">مراجعات إناث</div>
@@ -468,15 +480,15 @@
       <!-- Charts and Lists -->
       <div class="analytics-grid">
         <div class="analytics-card">
-          <div class="analytics-title">🏆 الأطباء حسب الربح</div>
+          <div class="analytics-title"><i class="fas fa-trophy"></i> الأطباء حسب الربح</div>
           <div class="analytics-list" id="an-doctor-list"></div>
         </div>
         <div class="analytics-card">
-          <div class="analytics-title">💊 الخدمات الأكثر طلباً</div>
+          <div class="analytics-title"><i class="fas fa-pills"></i> الخدمات الأكثر طلباً</div>
           <div class="analytics-list" id="an-service-list"></div>
         </div>
         <div class="analytics-card">
-          <div class="analytics-title">📡 مصادر الحجوزات</div>
+          <div class="analytics-title"><i class="fas fa-satellite-dish"></i> مصادر الحجوزات</div>
           <div class="analytics-list" id="an-source-list"></div>
         </div>
       </div>
@@ -517,19 +529,19 @@
       <div class="settings-grid">
         <!-- Profit Settings -->
         <div class="settings-card">
-          <div class="settings-title">💰 توزيع نسب الأرباح</div>
+          <div class="settings-title"><i class="fas fa-coins"></i> توزيع نسب الأرباح</div>
           <div class="settings-desc">تحديد النسب المئوية لتوزيع صافي الربح</div>
 
           <div class="range-group">
             <div class="range-header">
-              <span class="range-label">🩺 حصة الطبيب</span>
+              <span class="range-label"><i class="fas fa-stethoscope"></i> حصة الطبيب</span>
               <span class="range-value" id="range-doctor-display">40%</span>
             </div>
             <input type="range" id="range-doctor" min="0" max="100" value="40">
           </div>
           <div class="range-group">
             <div class="range-header">
-              <span class="range-label">🏥 حصة العيادة</span>
+              <span class="range-label"><i class="fas fa-clinic-medical"></i> حصة العيادة</span>
               <span class="range-value" id="range-clinic-display">40%</span>
             </div>
             <input type="range" id="range-clinic" min="0" max="100" value="40">
@@ -592,7 +604,7 @@
 
         <!-- Doctors -->
         <div class="settings-card">
-          <div class="settings-title">🩺 إدارة الأطباء</div>
+          <div class="settings-title"><i class="fas fa-stethoscope"></i> إدارة الأطباء</div>
           <div class="settings-desc">إضافة وحذف الأطباء في النظام</div>
 
           <div style="display:flex;gap:8px;margin-bottom:16px">
@@ -604,7 +616,7 @@
 
         <!-- Services -->
         <div class="settings-card">
-          <div class="settings-title">💊 إدارة الخدمات</div>
+          <div class="settings-title"><i class="fas fa-pills"></i> إدارة الخدمات</div>
           <div class="settings-desc">إضافة وحذف أنواع الخدمات الطبية</div>
 
           <div style="display:flex;gap:8px;margin-bottom:16px">
@@ -617,21 +629,21 @@
 
       <!-- Export Section -->
       <div class="settings-card" style="margin-top:20px">
-        <div class="settings-title">📤 تصدير البيانات</div>
+        <div class="settings-title"><i class="fas fa-file-export"></i> تصدير البيانات</div>
         <div class="settings-desc">تصدير جميع البيانات بتنسيق CSV</div>
         <div class="export-grid">
           <div class="export-btn" onclick="App.exportBookings()">
-            <div class="export-icon">📅</div>
+            <div class="export-icon"><i class="fas fa-calendar-alt"></i></div>
             <div class="export-label">تصدير الحجوزات</div>
             <div class="export-desc">جميع بيانات المواعيد</div>
           </div>
           <div class="export-btn" onclick="App.exportPatients()">
-            <div class="export-icon">👥</div>
+            <div class="export-icon"><i class="fas fa-users"></i></div>
             <div class="export-label">تصدير المرضى</div>
             <div class="export-desc">سجلات المراجعين والأرباح</div>
           </div>
           <div class="export-btn" onclick="App.exportReport()">
-            <div class="export-icon">📊</div>
+            <div class="export-icon"><i class="fas fa-chart-line"></i></div>
             <div class="export-label">تقرير الأرباح</div>
             <div class="export-desc">ملخص المؤشرات المالية</div>
           </div>
@@ -649,7 +661,7 @@
 <div id="confirm-overlay" class="modal-overlay">
   <div class="modal" style="max-width:380px">
     <div class="modal-header">
-      <div class="modal-title">⚠️ تأكيد العملية</div>
+      <div class="modal-title"><i class="fas fa-exclamation-triangle"></i> تأكيد العملية</div>
     </div>
     <div class="modal-body">
       <p id="confirm-msg" style="color:var(--text-secondary);font-size:14px;text-align:center;padding:16px 0"></p>
@@ -667,7 +679,7 @@
     <div class="modal-header">
       <div>
         <div class="modal-title" id="booking-modal-title">إضافة حجز جديد</div>
-        <div class="modal-subtitle">📅 تسجيل موعد المريض</div>
+        <div class="modal-subtitle"><i class="fas fa-calendar-alt"></i> تسجيل موعد المريض</div>
       </div>
       <button class="modal-close" data-close-modal>✕</button>
     </div>
@@ -701,17 +713,17 @@
             <select id="booking-source" class="form-select">
               <option value="phone">📞 هاتف</option>
               <option value="whatsapp">💬 واتساب</option>
-              <option value="walk-in">🚶 مباشر</option>
+              <option value="walk-in"><i class="fas fa-walking"></i> مباشر</option>
               <option value="online">🌐 إنترنت</option>
             </select>
           </div>
           <div class="form-group">
             <label class="form-label">حالة الحجز</label>
             <select id="booking-status" class="form-select">
-              <option value="scheduled">📅 مجدول</option>
-              <option value="completed">✅ مكتمل</option>
+              <option value="scheduled"><i class="fas fa-calendar-alt"></i> مجدول</option>
+              <option value="completed"><i class="fas fa-check-circle"></i> مكتمل</option>
               <option value="canceled">❌ ملغي</option>
-              <option value="no-show">⚠️ لم يحضر</option>
+              <option value="no-show"><i class="fas fa-exclamation-triangle"></i> لم يحضر</option>
             </select>
           </div>
           <div class="form-group form-full">
@@ -755,8 +767,8 @@
             <div class="form-group">
               <label class="form-label">الجنس</label>
               <select id="patient-gender" class="form-select">
-                <option value="male">👨 ذكر</option>
-                <option value="female">👩 أنثى</option>
+                <option value="male"><i class="fas fa-male"></i> ذكر</option>
+                <option value="female"><i class="fas fa-female"></i> أنثى</option>
               </select>
             </div>
             <div class="form-group">
@@ -772,7 +784,7 @@
 
         <!-- Service Info -->
         <div class="form-section">
-          <div class="form-section-title">🏥 معلومات الخدمة</div>
+          <div class="form-section-title"><i class="fas fa-clinic-medical"></i> معلومات الخدمة</div>
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">الطبيب المعالج *</label>
@@ -795,7 +807,7 @@
 
         <!-- Financial Info -->
         <div class="form-section">
-          <div class="form-section-title">💰 المعلومات المالية</div>
+          <div class="form-section-title"><i class="fas fa-coins"></i> المعلومات المالية</div>
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">السعر الإجمالي (ر.س)</label>
@@ -811,15 +823,15 @@
           <div class="profit-preview">
             <div class="profit-item">
               <div class="profit-value profit-net" id="preview-net">0 ر.س</div>
-              <div class="profit-label">📊 صافي الربح</div>
+              <div class="profit-label"><i class="fas fa-chart-line"></i> صافي الربح</div>
             </div>
             <div class="profit-item">
               <div class="profit-value profit-doctor" id="preview-doctor">0 ر.س</div>
-              <div class="profit-label">🩺 حصة الطبيب</div>
+              <div class="profit-label"><i class="fas fa-stethoscope"></i> حصة الطبيب</div>
             </div>
             <div class="profit-item">
               <div class="profit-value profit-clinic" id="preview-clinic">0 ر.س</div>
-              <div class="profit-label">🏥 حصة العيادة</div>
+              <div class="profit-label"><i class="fas fa-clinic-medical"></i> حصة العيادة</div>
             </div>
             <div class="profit-item">
               <div class="profit-value profit-platform" id="preview-platform">0 ر.س</div>
@@ -830,7 +842,7 @@
 
         <!-- Medical Notes -->
         <div class="form-section" style="margin-bottom:0">
-          <div class="form-section-title">📋 ملاحظات طبية</div>
+          <div class="form-section-title"><i class="fas fa-clipboard-list"></i> ملاحظات طبية</div>
           <div class="form-group">
             <textarea id="patient-notes" class="form-textarea" placeholder="الحساسية، الأمراض المزمنة، الملاحظات الطبية..." style="min-height:100px"></textarea>
           </div>
@@ -849,7 +861,7 @@
   <div class="modal">
     <div class="modal-header">
       <div>
-        <div class="modal-title">🔍 الفلترة الشاملة</div>
+        <div class="modal-title"><i class="fas fa-search"></i> الفلترة الشاملة</div>
         <div class="modal-subtitle">تصفية البيانات حسب المعايير</div>
       </div>
       <button class="modal-close" data-close-modal>✕</button>
@@ -875,7 +887,7 @@
               <option value="">جميع المصادر</option>
               <option value="phone">📞 هاتف</option>
               <option value="whatsapp">💬 واتساب</option>
-              <option value="walk-in">🚶 مباشر</option>
+              <option value="walk-in"><i class="fas fa-walking"></i> مباشر</option>
               <option value="online">🌐 إنترنت</option>
             </select>
           </div>
@@ -883,8 +895,8 @@
             <label class="form-label">الجنس</label>
             <select id="filter-gender" class="form-select">
               <option value="">الكل</option>
-              <option value="male">👨 ذكر</option>
-              <option value="female">👩 أنثى</option>
+              <option value="male"><i class="fas fa-male"></i> ذكر</option>
+              <option value="female"><i class="fas fa-female"></i> أنثى</option>
             </select>
           </div>
           <div class="form-group">
@@ -919,7 +931,7 @@
     </form>
     <div class="modal-footer">
       <button id="btn-clear-filter" class="btn btn-secondary">🗑️ مسح الفلتر</button>
-      <button id="btn-apply-filter" class="btn btn-primary">✅ تطبيق الفلتر</button>
+      <button id="btn-apply-filter" class="btn btn-primary"><i class="fas fa-check-circle"></i> تطبيق الفلتر</button>
     </div>
   </div>
 </div>
@@ -929,7 +941,7 @@
   <div class="modal">
     <div class="modal-header">
       <div>
-        <div class="modal-title">📤 تصدير البيانات</div>
+        <div class="modal-title"><i class="fas fa-file-export"></i> تصدير البيانات</div>
         <div class="modal-subtitle">تنزيل البيانات بتنسيق CSV</div>
       </div>
       <button class="modal-close" data-close-modal>✕</button>
@@ -937,17 +949,17 @@
     <div class="modal-body">
       <div class="export-grid">
         <div class="export-btn" onclick="App.exportBookings();UI.closeAllModals()">
-          <div class="export-icon">📅</div>
+          <div class="export-icon"><i class="fas fa-calendar-alt"></i></div>
           <div class="export-label">الحجوزات</div>
           <div class="export-desc">جميع بيانات المواعيد</div>
         </div>
         <div class="export-btn" onclick="App.exportPatients();UI.closeAllModals()">
-          <div class="export-icon">👥</div>
+          <div class="export-icon"><i class="fas fa-users"></i></div>
           <div class="export-label">المرضى</div>
           <div class="export-desc">سجلات المراجعين</div>
         </div>
         <div class="export-btn" onclick="App.exportReport();UI.closeAllModals()">
-          <div class="export-icon">📊</div>
+          <div class="export-icon"><i class="fas fa-chart-line"></i></div>
           <div class="export-label">تقرير الأرباح</div>
           <div class="export-desc">ملخص مالي شامل</div>
         </div>

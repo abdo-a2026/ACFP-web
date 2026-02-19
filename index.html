@@ -71,6 +71,19 @@
 <!-- ======================== MAIN APP ======================== -->
 <div id="app">
 
+  <!-- MOBILE FAB BUTTONS -->
+  <div class="mobile-fab-container">
+    <button class="mobile-fab warning" onclick="UI.openModal('filter-modal')" title="فلترة">
+      <i class="fas fa-filter"></i>
+    </button>
+    <button class="mobile-fab" id="mobile-btn-add-booking" title="حجز جديد">
+      <i class="fas fa-calendar-plus"></i>
+    </button>
+    <button class="mobile-fab success" id="mobile-btn-add-patient" title="مريض جديد">
+      <i class="fas fa-user-plus"></i>
+    </button>
+  </div>
+
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-brand">
@@ -521,8 +534,22 @@
     <div id="page-settings" class="page">
       <div class="page-header">
         <div>
-          <div class="page-title">⚙️ الإعدادات</div>
+          <div class="page-title"><i class="fas fa-cog"></i> الإعدادات</div>
           <div class="page-subtitle">تخصيص النظام وإعداداته</div>
+        </div>
+      </div>
+
+      <!-- Mobile Profile Section -->
+      <div class="mobile-settings-profile">
+        <div class="mobile-settings-logo">
+          <span class="acfp-text">ACFP</span>
+        </div>
+        <div class="mobile-settings-info">
+          <div class="mobile-settings-title">Advanced Clinic Flow Platform</div>
+          <div class="mobile-settings-subtitle">نظام إدارة عيادات متقدم</div>
+          <div class="mobile-account-badge demo" id="mobile-account-type">
+            <i class="fas fa-flask"></i> حساب تجريبي
+          </div>
         </div>
       </div>
 
@@ -652,6 +679,31 @@
     </div>
 
   </main><!-- end main-content -->
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <nav class="mobile-bottom-nav">
+    <div class="mobile-nav-item active" data-page="dashboard">
+      <i class="fas fa-chart-line nav-icon"></i>
+      <span>الرئيسية</span>
+    </div>
+    <div class="mobile-nav-item" data-page="bookings">
+      <i class="fas fa-calendar-alt nav-icon"></i>
+      <span>الحجوزات</span>
+    </div>
+    <div class="mobile-nav-item" data-page="patients">
+      <i class="fas fa-users nav-icon"></i>
+      <span>المرضى</span>
+    </div>
+    <div class="mobile-nav-item" data-page="analytics">
+      <i class="fas fa-chart-bar nav-icon"></i>
+      <span>التحليلات</span>
+    </div>
+    <div class="mobile-nav-item" data-page="settings">
+      <i class="fas fa-cog nav-icon"></i>
+      <span>الإعدادات</span>
+    </div>
+  </nav>
+
 </div><!-- end app -->
 
 <!-- ==================== TOAST CONTAINER ==================== -->

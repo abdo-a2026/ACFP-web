@@ -47,6 +47,15 @@ const App = (function() {
       item.addEventListener('click', () => navigateTo(item.dataset.page));
     });
 
+    // Mobile nav items
+    document.querySelectorAll('.mobile-nav-item[data-page]').forEach(item => {
+      item.addEventListener('click', () => navigateTo(item.dataset.page));
+    });
+
+    // Mobile FAB buttons
+    document.getElementById('mobile-btn-add-booking')?.addEventListener('click', openAddBooking);
+    document.getElementById('mobile-btn-add-patient')?.addEventListener('click', openAddPatient);
+
     // Filter chip shortcuts
     document.querySelectorAll('[data-period]').forEach(chip => {
       chip.addEventListener('click', function() {
@@ -92,6 +101,21 @@ const App = (function() {
       } else {
         statusDot.className = 'status-dot';
         statusDot.innerHTML = '<i class="fas fa-circle"></i> متصل';
+      }
+
+      // Update mobile account badge
+      const mobileAccountBadge = document.getElementById('mobile-account-type');
+      if (mobileAccountBadge) {
+        if (demo) {
+          mobileAccountBadge.className = 'mobile-account-badge demo';
+          mobileAccountBadge.innerHTML = '<i class="fas fa-flask"></i> حساب تجريبي';
+        } else if (settings.firebaseConnected) {
+          mobileAccountBadge.className = 'mobile-account-badge cloud';
+          mobileAccountBadge.innerHTML = '<i class="fas fa-cloud"></i> متصل بالسحابة';
+        } else {
+          mobileAccountBadge.className = 'mobile-account-badge demo';
+          mobileAccountBadge.innerHTML = '<i class="fas fa-database"></i> حساب محلي';
+        }
       }
 
       document.getElementById('login-page').style.display = 'none';
@@ -148,12 +172,15 @@ const App = (function() {
 
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('active'));
 
     const pageEl = document.getElementById(`page-${page}`);
     const navEl = document.querySelector(`.nav-item[data-page="${page}"]`);
+    const mobileNavEl = document.querySelector(`.mobile-nav-item[data-page="${page}"]`);
 
     if (pageEl) pageEl.classList.add('active');
     if (navEl) navEl.classList.add('active');
+    if (mobileNavEl) mobileNavEl.classList.add('active');
 
     const titles = {
       dashboard: ['لوحة التحكم', 'نظرة عامة على الأداء التشغيلي'],

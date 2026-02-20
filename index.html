@@ -71,18 +71,26 @@
 <!-- ======================== MAIN APP ======================== -->
 <div id="app">
 
-  <!-- MOBILE FAB BUTTONS -->
-  <div class="mobile-fab-container">
-    <button class="mobile-fab warning" onclick="UI.openModal('filter-modal')" title="فلترة">
-      <i class="fas fa-filter"></i>
-    </button>
-    <button class="mobile-fab" id="mobile-btn-add-booking" title="حجز جديد">
-      <i class="fas fa-calendar-plus"></i>
-    </button>
-    <button class="mobile-fab success" id="mobile-btn-add-patient" title="مريض جديد">
-      <i class="fas fa-user-plus"></i>
-    </button>
-  </div>
+  <!-- MOBILE HEADER -->
+  <header class="mobile-header">
+    <div class="mobile-logo">
+      <div class="logo-icon">
+        <span class="acfp-text" style="font-size: 12px;">ACFP</span>
+      </div>
+      <span class="acfp-text">ACFP</span>
+    </div>
+    <div class="mobile-fab-container">
+      <button class="mobile-fab warning" onclick="UI.openModal('filter-modal')" title="فلترة">
+        <i class="fas fa-filter"></i>
+      </button>
+      <button class="mobile-fab" id="mobile-btn-add-booking" title="حجز جديد">
+        <i class="fas fa-calendar-plus"></i>
+      </button>
+      <button class="mobile-fab success" id="mobile-btn-add-patient" title="مريض جديد">
+        <i class="fas fa-user-plus"></i>
+      </button>
+    </div>
+  </header>
 
   <!-- SIDEBAR -->
   <aside class="sidebar">

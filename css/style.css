@@ -44,22 +44,63 @@
 
 /* Light Mode */
 body.light-mode {
-  --bg-primary: #EAD39B;
-  --bg-secondary: #F5E6C8;
+  --bg-primary: #F5E6C8;
+  --bg-secondary: #FEFAF2;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #F8F8F8;
-  --bg-sidebar: #E0CC8F;
-  --border: rgba(11, 151, 156, 0.15);
-  --border-strong: rgba(11, 151, 156, 0.35);
+  --bg-card-hover: #FBF7EF;
+  --bg-sidebar: #E8D9B8;
+  --border: rgba(11, 151, 156, 0.2);
+  --border-strong: rgba(11, 151, 156, 0.4);
 
   --text-primary: #1A2E2E;
   --text-secondary: #3E5A5A;
-  --text-muted: #6B8080;
+  --text-muted: #7A8E8E;
   --text-link: #0B979C;
 
-  --shadow-card: 0 2px 16px rgba(0,0,0,0.08);
-  --shadow-modal: 0 20px 60px rgba(0,0,0,0.15);
-  --shadow-glow: 0 0 20px rgba(234,211,155,0.4);
+  --shadow-card: 0 2px 16px rgba(11,151,156,0.12);
+  --shadow-modal: 0 20px 60px rgba(11,151,156,0.2);
+  --shadow-glow: 0 0 20px rgba(11,151,156,0.15);
+}
+
+body.light-mode .stat-card {
+  border: 1px solid rgba(11,151,156,0.15);
+}
+
+body.light-mode .card {
+  border: 1px solid rgba(11,151,156,0.15);
+  box-shadow: 0 2px 8px rgba(11,151,156,0.08);
+}
+
+body.light-mode table {
+  color: var(--text-primary);
+}
+
+body.light-mode thead th {
+  background: rgba(11,151,156,0.08);
+  color: var(--text-primary);
+}
+
+body.light-mode .chart-card {
+  border: 1px solid rgba(11,151,156,0.15);
+  box-shadow: 0 2px 8px rgba(11,151,156,0.08);
+}
+
+body.light-mode .filter-chip {
+  background: #FFFFFF;
+  border-color: rgba(11,151,156,0.25);
+  color: var(--text-primary);
+}
+
+body.light-mode .filter-chip:hover {
+  background: rgba(11,151,156,0.08);
+  border-color: rgba(11,151,156,0.4);
+}
+
+body.light-mode .filter-chip.active {
+  background: rgba(11,151,156,0.15);
+  color: var(--primary-teal);
+  border-color: rgba(11,151,156,0.5);
+  font-weight: 600;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -122,49 +163,57 @@ body {
 }
 
 .login-logo .logo-icon {
-  width: 90px;
-  height: 90px;
-  background: var(--gradient-primary);
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
   margin: 0 auto 20px;
-  box-shadow: var(--shadow-glow), 0 8px 24px rgba(11,151,156,0.3);
   position: relative;
-  overflow: hidden;
 }
 
 .login-logo .logo-icon::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-  transform: translateX(-100%);
-  animation: shine 3s infinite;
-}
-
-@keyframes shine {
-  to { transform: translateX(100%); }
+  display: none;
 }
 
 .acfp-logo {
   font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 32px;
+  font-size: 56px;
   font-weight: 900;
-  letter-spacing: 2px;
-  background: linear-gradient(135deg, #EAD39B 0%, #FFE4A3 25%, #EAD39B 50%, #D4B87A 75%, #EAD39B 100%);
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, #0B979C 0%, #0DD4DA 25%, #EAD39B 50%, #F5E6C8 75%, #0B979C 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 2px 8px rgba(234,211,155,0.3);
-  filter: drop-shadow(0 0 10px rgba(234,211,155,0.4));
-  animation: shimmer 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(11,151,156,0.4)) drop-shadow(0 0 20px rgba(234,211,155,0.3));
+  animation: shimmer 4s ease-in-out infinite;
+  text-shadow: none;
+  position: relative;
+}
+
+.acfp-logo::before {
+  content: 'ACFP';
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: linear-gradient(135deg, rgba(11,151,156,0.3) 0%, rgba(234,211,155,0.3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: blur(8px);
+  z-index: -1;
 }
 
 @keyframes shimmer {
-  0%, 100% { filter: drop-shadow(0 0 10px rgba(234,211,155,0.4)) brightness(1); }
-  50% { filter: drop-shadow(0 0 15px rgba(234,211,155,0.6)) brightness(1.1); }
+  0%, 100% { 
+    background-position: 0% 50%;
+    filter: drop-shadow(0 4px 12px rgba(11,151,156,0.4)) drop-shadow(0 0 20px rgba(234,211,155,0.3)) brightness(1);
+  }
+  50% { 
+    background-position: 100% 50%;
+    filter: drop-shadow(0 4px 16px rgba(11,151,156,0.6)) drop-shadow(0 0 30px rgba(234,211,155,0.5)) brightness(1.15);
+  }
 }
 
 .login-logo h1 {
@@ -370,37 +419,37 @@ body.light-mode .btn-primary {
 }
 
 .sidebar-brand .brand-icon {
-  width: 42px; height: 42px;
-  background: var(--gradient-primary);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
   flex-shrink: 0;
-  box-shadow: var(--shadow-glow);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .sidebar-brand .brand-icon::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-  transform: translateX(-100%);
-  animation: shine 4s infinite;
+  display: none;
 }
 
 .sidebar-brand .acfp-text {
   font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 12px;
+  font-size: 24px;
   font-weight: 900;
-  letter-spacing: 1px;
-  background: linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-beige) 50%, var(--primary-teal) 100%);
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #0B979C 0%, #0DD4DA 30%, #EAD39B 50%, #0B979C 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 6px rgba(234,211,155,0.3));
+  filter: drop-shadow(0 2px 6px rgba(11,151,156,0.3));
+  animation: shimmerSidebar 5s ease-in-out infinite;
+}
+
+@keyframes shimmerSidebar {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .sidebar-brand .brand-text { flex: 1; min-width: 0; }
@@ -662,6 +711,48 @@ canvas { max-width: 100%; }
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  position: relative;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+  position: relative;
+  transform: rotateX(180deg);
+}
+
+.table-wrapper table {
+  transform: rotateX(180deg);
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--primary-teal);
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-beige);
+}
+
+body.light-mode .table-wrapper::-webkit-scrollbar-track {
+  background: rgba(11,151,156,0.1);
+}
+
+body.light-mode .table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--primary-teal);
+}
+
+body.light-mode .table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(11,151,156,0.8);
 }
 
 .table-header {
@@ -1253,25 +1344,25 @@ body.light-mode #loader-text {
   }
 
   .mobile-logo .logo-icon {
-    width: 36px;
-    height: 36px;
-    background: var(--gradient-primary);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--shadow-glow);
+    width: auto;
+    height: auto;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   .mobile-logo .acfp-text {
     font-family: 'Playfair Display', 'Georgia', serif;
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 900;
-    letter-spacing: 1px;
-    background: linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-beige) 100%);
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #0B979C 0%, #0DD4DA 30%, #EAD39B 50%, #0B979C 100%);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    filter: drop-shadow(0 2px 6px rgba(11,151,156,0.3));
+    animation: shimmerSidebar 5s ease-in-out infinite;
   }
 
   .mobile-fab-container {
@@ -1536,6 +1627,29 @@ body.light-mode #loader-text {
     font-size: 13px;
   }
 
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Fix donut chart on mobile */
+  .chart-card:has(canvas[id*="sources"]) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .chart-card canvas[id*="sources"] {
+    max-width: 180px !important;
+    max-height: 180px !important;
+    width: 180px !important;
+    height: 180px !important;
+  }
+
+  .donut-chart {
+    width: 180px !important;
+    height: 180px !important;
+  }
+
   /* Modal mobile */
   .modal {
     max-width: 95%;
@@ -1568,29 +1682,33 @@ body.light-mode #loader-text {
   }
 
   .mobile-settings-logo {
-    width: 80px;
-    height: 80px;
-    background: var(--gradient-primary);
-    border-radius: 20px;
+    width: auto;
+    height: auto;
+    background: transparent;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--shadow-glow);
+    box-shadow: none;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .mobile-settings-logo::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-    transform: translateX(-100%);
-    animation: shine 4s infinite;
+    display: none;
   }
 
   .mobile-settings-logo .acfp-text {
-    font-size: 28px;
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #0B979C 0%, #0DD4DA 30%, #EAD39B 50%, #0B979C 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 3px 8px rgba(11,151,156,0.4));
+    animation: shimmerSidebar 5s ease-in-out infinite;
   }
 
   .mobile-settings-info {
@@ -1655,7 +1773,7 @@ body.light-mode #loader-text {
   }
 
   .acfp-logo {
-    font-size: 20px;
+    font-size: 28px;
   }
 
   /* Lock screen mobile */
@@ -1663,7 +1781,6 @@ body.light-mode #loader-text {
     max-width: 90%;
     padding: 32px 24px;
   }
-  
 }
 
 /* Hide mobile elements on desktop */
